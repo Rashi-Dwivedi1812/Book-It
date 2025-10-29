@@ -1,3 +1,7 @@
+// All 'next/...' imports are now active for your real deployment.
+import Image from 'next/image';
+import Link from 'next/link';
+
 // 1. Define the type for an Experience
 interface IExperience {
   _id: string; 
@@ -7,12 +11,14 @@ interface IExperience {
   price: number;
   image_url: string;
 }
+// --- THIS IS THE FIX ---
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // 2. Helper function to fetch data
 async function getExperiences(): Promise<IExperience[]> {
   try {
-    // Fetch from your backend's endpoint
-    const res = await fetch('http://localhost:3001/api/experiences', {
+    // Fetch from your new environment variable
+    const res = await fetch(`${API_URL}/api/experiences`, {
       cache: 'no-store', // Always get fresh data
     });
 
@@ -35,10 +41,14 @@ function Header() {
         {/* Logo Image */}
         <div className="flex-shrink-0">
           <a href="/" className="flex items-center">
-            <img
+            {/* Using Next.js Image component for optimization */}
+            <Image
               src="/images/logo.jpeg" // This path assumes your logo is in /public/images/logo.jpeg
               alt="Highway Delite Logo"
-              className="h-13 w-auto" // Set height and let width adjust automatically
+              width={160} // Set the actual width of your logo
+              height={40} // Set the actual height of your logo
+              className="h-10 w-auto" // Tailwind classes for responsive height
+              priority // Prioritize loading the logo
             />
           </a>
         </div>
@@ -120,11 +130,12 @@ export default async function Home() {
                     </span>
                   </div>
                   
-                  <a href={`/details/${exp._id}`} className="block">
+                  {/* Using Next.js Link for navigation */}
+                  <Link href={`/details/${exp._id}`} className="block">
                     <button className="bg-yellow-400 text-black font-semibold py-2 px-4 rounded-lg hover:bg-yellow-500 transition-colors">
                       View Details
                     </button>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

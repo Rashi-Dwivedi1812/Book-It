@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-// import { useRouter } from 'next/navigation'; // Removed for preview compatibility
-// Corrected import path for preview
 import { useBookingStore } from './../store/bookingStore'; 
 import axios from 'axios';
+// --- THIS IS THE FIX ---
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'; // Added fallback for preview
 
 // --- Reusable Header Component ---
 function Header() {
@@ -14,13 +14,11 @@ function Header() {
         {/* Logo Image */}
         <div className="flex-shrink-0">
           <a href="/" className="flex items-center">
-            {/* Replaced Next.js <Image> with standard <img> for preview compatibility.
-              In your local project, use the <Image> component for optimization.
-            */}
+            {/* Using standard <img> for preview compatibility */}
             <img
-              src="/images/logo.jpeg" // This path assumes your logo is in /public/images/logo.jpeg
+              src="/images/logo.jpeg" // Path assumes logo is in /public/images/logo.jpeg
               alt="Highway Delite Logo"
-              className="h-13 w-auto" // Set height and let width adjust automatically
+              className="h-10 w-auto" // Tailwind classes for responsive height
             />
           </a>
         </div>
@@ -63,17 +61,16 @@ const formatTime = (dateString: string) => {
 export default function CheckoutPage() {
   // const router = useRouter(); // Removed for preview compatibility
 
-  // 1. --- THIS IS THE FIX for the infinite loop ---
+  // 1. Get state
   const experience = useBookingStore((state) => state.experience);
   const slot = useBookingStore((state) => state.slot);
   const clearBooking = useBookingStore((state) => state.clearBooking);
-  // --- END OF FIX ---
 
   // 2. Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [promoCode, setPromoCode] = useState('');
-  const [agreed, setAgreed] = useState(false); // New state for checkbox
+  const [agreed, setAgreed] = useState(false);
 
   // 3. Price & loading state
   const [discount, setDiscount] = useState(0); 
@@ -84,14 +81,17 @@ export default function CheckoutPage() {
 
   // 4. Redirect if no data
   useEffect(() => {
+    // This effect now runs only ONCE on mount
     const exp = useBookingStore.getState().experience;
     const s = useBookingStore.getState().slot;
     if (!exp || !s) {
-      window.location.href = '/';
+      // router.push('/'); // Replaced for preview compatibility
+      window.location.href = '/'; 
     }
+  // }, [router]); // Replaced for preview compatibility
   }, []); // Empty array, runs only on mount
 
-  // 5. Calculate price (Updated for new UI)
+  // 5. Calculate price
   const MOCK_TAX = 59;
   const basePrice = experience?.price || 0;
   let subtotal = basePrice;
@@ -101,18 +101,19 @@ export default function CheckoutPage() {
   } else if (discountType === 'flat') {
     subtotal = basePrice - discount;
   }
-  if (subtotal < 0) subtotal = 0; // Subtotal can't be negative
+  if (subtotal < 0) subtotal = 0;
 
   const totalPrice = subtotal + MOCK_TAX;
 
   // --- Functions ---
 
   const handleApplyPromo = async () => {
-    if (!promoCode) return;
+    if (!promoCode || !API_URL) return; // Check if API_URL is defined
     setIsPromoLoading(true);
     setPromoMessage('');
     try {
-      const res = await axios.post('http://localhost:3001/api/promo/validate', {
+      // --- UPDATED URL ---
+      const res = await axios.post(`${API_URL}/api/promo/validate`, {
         promoCode,
       });
       if (res.data.discount < 1) {
@@ -141,6 +142,10 @@ export default function CheckoutPage() {
       alert('You must agree to the terms and safety policy.');
       return;
     }
+    if (!API_URL) { // Check if API_URL is defined
+      alert('API URL is not configured.');
+      return;
+    }
     
     setIsLoading(true);
 
@@ -151,12 +156,14 @@ export default function CheckoutPage() {
         user_name: name,
         user_email: email,
         promo_code: discount > 0 ? promoCode : undefined,
-        final_price: totalPrice, // Send the final total
+        final_price: totalPrice,
       };
 
-      await axios.post('http://localhost:3001/api/bookings', bookingDetails);
+      // --- UPDATED URL ---
+      await axios.post(`${API_URL}/api/bookings`, bookingDetails);
 
       clearBooking();
+      // router.push('/result?status=success'); // Replaced for preview compatibility
       window.location.href = '/result?status=success';
 
     } catch (error: any) {
@@ -164,6 +171,7 @@ export default function CheckoutPage() {
       if (error.response && error.response.status === 409) {
         errorMessage = 'Sorry, this slot was just booked by someone else.';
       }
+      // router.push(`/result?status=error&message=${encodeURIComponent(errorMessage)}`); // Replaced for preview compatibility
       window.location.href = `/result?status=error&message=${encodeURIComponent(errorMessage)}`;
     } finally {
       setIsLoading(false);
@@ -183,13 +191,15 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-white">
       <Header />
       <main className="container mx-auto p-4 sm:px-6 lg:px-8 py-6">
-        {/* Back Link */}
+        {/* Back Link - Use standard <a> for preview */}
         <a href={`/details/${experience._id}`} className="inline-flex items-center gap-2 text-sm font-medium text-[#000000] hover:text-gray-900 mb-4">
+        {/* <Link href={`/details/${experience._id}`} className="inline-flex items-center gap-2 text-sm font-medium text-[#000000] hover:text-gray-900 mb-4"> */}
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
           Checkout
         </a>
+        {/* </Link> */}
 
         <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
           
