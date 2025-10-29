@@ -2,7 +2,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-// 1. Define the type for an Experience
+export const dynamic = 'force-dynamic';
+
 interface IExperience {
   _id: string; 
   title: string;
@@ -11,19 +12,23 @@ interface IExperience {
   price: number;
   image_url: string;
 }
-// --- THIS IS THE FIX ---
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // 2. Helper function to fetch data
 async function getExperiences(): Promise<IExperience[]> {
+  if (!API_URL) {
+    console.error("API URL is not defined.");
+    return [];
+  }
   try {
-    // Fetch from your new environment variable
+    // Fetch from your environment variable
     const res = await fetch(`${API_URL}/api/experiences`, {
-      cache: 'no-store', // Always get fresh data
+      cache: 'no-store', // Always get fresh data (this triggers dynamic rendering)
     });
 
     if (!res.ok) {
-      throw new Error('Failed to fetch data');
+      throw new Error(`Failed to fetch data (status: ${res.status})`);
     }
 
     return res.json();
@@ -33,7 +38,7 @@ async function getExperiences(): Promise<IExperience[]> {
   }
 }
 
-// --- UPDATED HEADER COMPONENT ---
+// --- Header Component ---
 function Header() {
   return (
     <header className="bg-white border-b border-gray-200">
@@ -81,13 +86,13 @@ export default async function Home() {
 
   return (
     <div className="bg-white min-h-screen">
-      <Header /> {/* <-- This will now use the fixed Header */}
+      <Header /> 
       
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         {/* Check if there are no experiences */}
         {experiences.length === 0 && (
           <p className="text-center text-gray-500">
-            No experiences found. Is the backend server running?
+            No experiences found. Is the backend server running or responding correctly?
           </p>
         )}
 
@@ -145,4 +150,3 @@ export default async function Home() {
     </div>
   );
 }
-
