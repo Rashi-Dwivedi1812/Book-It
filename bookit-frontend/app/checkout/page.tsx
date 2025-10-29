@@ -107,7 +107,7 @@ export default function CheckoutPage() {
 
   // --- Functions ---
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
   const handleApplyPromo = async () => {
     if (!promoCode) return;

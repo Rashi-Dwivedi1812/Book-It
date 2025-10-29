@@ -1,33 +1,40 @@
-// app/details/[id]/page.tsx
-import ExperienceDetailsClient from '@/app/components/ExperienceDetailsClient';
-import { IExperienceDetails } from '@/app/types';
+"use client";
 
-// This is the data-fetching function
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+import { useEffect, useState } from "react";
+import ExperienceDetailsClient from "@/app/components/ExperienceDetailsClient";
+import { IExperienceDetails } from "@/app/types";
 
-async function getExperienceDetails(id: string): Promise<IExperienceDetails | null> {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/experiences/${id}`, {
-      cache: 'no-store',
-    });
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
-    if (!res.ok) {
-      throw new Error('Failed to fetch experience details');
+export default function DetailsPage({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const [experience, setExperience] = useState<IExperienceDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDetails() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/experiences/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch details");
+        const data = await res.json();
+        setExperience(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    return res.json();
-  } catch (error) {
-    console.error(error);
-    return null;
+    if (id) fetchDetails();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <main className="container mx-auto p-4">
+        <p className="text-gray-600">Loading...</p>
+      </main>
+    );
   }
-}
-
-
-// The Page component
-export default async function DetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params; // ✅ unwrap params promise
-
-  const experience = await getExperienceDetails(id);
 
   if (!experience) {
     return (
@@ -37,6 +44,5 @@ export default async function DetailsPage({ params }: { params: Promise<{ id: st
     );
   }
 
-  // It passes the server-fetched data as a prop
   return <ExperienceDetailsClient experience={experience} />;
 }
