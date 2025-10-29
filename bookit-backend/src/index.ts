@@ -14,7 +14,7 @@ connectDB();
 const port = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'https://book-it-neon.vercel.app' }));
 app.use(express.json());
 
 // Routes
