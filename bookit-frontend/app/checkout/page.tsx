@@ -107,14 +107,12 @@ export default function CheckoutPage() {
 
   // --- Functions ---
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
   const handleApplyPromo = async () => {
     if (!promoCode) return;
     setIsPromoLoading(true);
     setPromoMessage('');
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/promo/validate`, {
+      const res = await axios.post('http://localhost:3001/api/promo/validate', {
         promoCode,
       });
       if (res.data.discount < 1) {
@@ -156,7 +154,7 @@ export default function CheckoutPage() {
         final_price: totalPrice, // Send the final total
       };
 
-      await axios.post(`${API_BASE_URL}/api/bookings`, bookingDetails);
+      await axios.post('http://localhost:3001/api/bookings', bookingDetails);
 
       clearBooking();
       window.location.href = '/result?status=success';
