@@ -1,9 +1,4 @@
-// All 'next/...' imports are now active for your real deployment.
-import Image from 'next/image';
-import Link from 'next/link';
-
-export const dynamic = 'force-dynamic';
-
+// 1. Define the type for an Experience
 interface IExperience {
   _id: string; 
   title: string;
@@ -13,22 +8,16 @@ interface IExperience {
   image_url: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 // 2. Helper function to fetch data
 async function getExperiences(): Promise<IExperience[]> {
-  if (!API_URL) {
-    console.error("API URL is not defined.");
-    return [];
-  }
   try {
-    // Fetch from your environment variable
-    const res = await fetch(`${API_URL}/api/experiences`, {
-      cache: 'no-store', // Always get fresh data (this triggers dynamic rendering)
+    // Fetch from your backend's endpoint
+    const res = await fetch('http://localhost:3001/api/experiences', {
+      cache: 'no-store', // Always get fresh data
     });
 
     if (!res.ok) {
-      throw new Error(`Failed to fetch data (status: ${res.status})`);
+      throw new Error('Failed to fetch data');
     }
 
     return res.json();
@@ -38,7 +27,7 @@ async function getExperiences(): Promise<IExperience[]> {
   }
 }
 
-// --- Header Component ---
+// --- UPDATED HEADER COMPONENT ---
 function Header() {
   return (
     <header className="bg-white border-b border-gray-200">
@@ -46,14 +35,10 @@ function Header() {
         {/* Logo Image */}
         <div className="flex-shrink-0">
           <a href="/" className="flex items-center">
-            {/* Using Next.js Image component for optimization */}
-            <Image
+            <img
               src="/images/logo.jpeg" // This path assumes your logo is in /public/images/logo.jpeg
               alt="Highway Delite Logo"
-              width={160} // Set the actual width of your logo
-              height={40} // Set the actual height of your logo
-              className="h-10 w-auto" // Tailwind classes for responsive height
-              priority // Prioritize loading the logo
+              className="h-13 w-auto" // Set height and let width adjust automatically
             />
           </a>
         </div>
@@ -86,13 +71,13 @@ export default async function Home() {
 
   return (
     <div className="bg-white min-h-screen">
-      <Header /> 
+      <Header /> {/* <-- This will now use the fixed Header */}
       
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         {/* Check if there are no experiences */}
         {experiences.length === 0 && (
           <p className="text-center text-gray-500">
-            No experiences found. Is the backend server running or responding correctly?
+            No experiences found. Is the backend server running?
           </p>
         )}
 
@@ -135,12 +120,11 @@ export default async function Home() {
                     </span>
                   </div>
                   
-                  {/* Using Next.js Link for navigation */}
-                  <Link href={`/details/${exp._id}`} className="block">
+                  <a href={`/details/${exp._id}`} className="block">
                     <button className="bg-yellow-400 text-black font-semibold py-2 px-4 rounded-lg hover:bg-yellow-500 transition-colors">
                       View Details
                     </button>
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>
@@ -150,3 +134,4 @@ export default async function Home() {
     </div>
   );
 }
+

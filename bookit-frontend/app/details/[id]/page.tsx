@@ -2,42 +2,32 @@
 import ExperienceDetailsClient from '@/app/components/ExperienceDetailsClient';
 import { IExperienceDetails } from '@/app/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL; // Added fallback for preview
-
 // This is the data-fetching function
 async function getExperienceDetails(id: string): Promise<IExperienceDetails | null> {
-  if (!API_URL) {
-    console.error('API URL is not defined.');
-    return null;
-  }
   try {
-    // Fetch from your environment variable
-    const res = await fetch(`${API_URL}/api/experiences/${id}`, {
+    const res = await fetch(`http://localhost:3001/api/experiences/${id}`, {
       cache: 'no-store',
     });
     if (!res.ok) {
-      throw new Error(`Failed to fetch experience details (status: ${res.status})`);
+      throw new Error('Failed to fetch experience details');
     }
     return res.json();
   } catch (error) {
-    console.error('Error fetching details:', error);
+    console.error(error);
     return null;
   }
 }
 
 // The Page component
-// --- CORRECTED PARAMS TYPE ---
-export default async function DetailsPage({ params }: { params: { id: string } }) {
-  // const { id } = await params; // No need to await params directly
-  const { id } = params;
+export default async function DetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params; // ✅ unwrap params promise
 
   const experience = await getExperienceDetails(id);
 
   if (!experience) {
     return (
       <main className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold">Experience not found or API error.</h1>
-        <p className="text-gray-600">Please check the console for details.</p>
+        <h1 className="text-2xl font-bold">Experience not found.</h1>
       </main>
     );
   }
