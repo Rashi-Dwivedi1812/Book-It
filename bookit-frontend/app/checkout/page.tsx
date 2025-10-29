@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useBookingStore } from './../store/bookingStore'; 
 import axios from 'axios';
 // --- THIS IS THE FIX ---
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'; // Added fallback for preview
+const API_URL = process.env.NEXT_PUBLIC_API_URL; // Added fallback for preview
 
 // --- Reusable Header Component ---
 function Header() {

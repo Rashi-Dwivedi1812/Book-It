@@ -2,7 +2,7 @@
 import ExperienceDetailsClient from '@/app/components/ExperienceDetailsClient';
 import { IExperienceDetails } from '@/app/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'; // Added fallback for preview
+const API_URL = process.env.NEXT_PUBLIC_API_URL; // Added fallback for preview
 
 // This is the data-fetching function
 async function getExperienceDetails(id: string): Promise<IExperienceDetails | null> {
