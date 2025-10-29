@@ -9,10 +9,11 @@ interface IExperience {
 }
 
 // 2. Helper function to fetch data
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 async function getExperiences(): Promise<IExperience[]> {
   try {
-    // Fetch from your backend's endpoint
-    const res = await fetch('http://localhost:3001/api/experiences', {
+    const res = await fetch(`${API_BASE_URL}/api/experiences`, {
       cache: 'no-store', // Always get fresh data
     });
 
@@ -26,6 +27,7 @@ async function getExperiences(): Promise<IExperience[]> {
     return []; // Return an empty array on error
   }
 }
+
 
 // --- UPDATED HEADER COMPONENT ---
 function Header() {

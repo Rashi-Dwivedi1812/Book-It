@@ -3,20 +3,25 @@ import ExperienceDetailsClient from '@/app/components/ExperienceDetailsClient';
 import { IExperienceDetails } from '@/app/types';
 
 // This is the data-fetching function
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 async function getExperienceDetails(id: string): Promise<IExperienceDetails | null> {
   try {
-    const res = await fetch(`http://localhost:3001/api/experiences/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/experiences/${id}`, {
       cache: 'no-store',
     });
+
     if (!res.ok) {
       throw new Error('Failed to fetch experience details');
     }
+
     return res.json();
   } catch (error) {
     console.error(error);
     return null;
   }
 }
+
 
 // The Page component
 export default async function DetailsPage({ params }: { params: Promise<{ id: string }> }) {
