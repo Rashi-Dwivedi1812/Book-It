@@ -8,11 +8,13 @@ interface IExperience {
   image_url: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 // 2. Helper function to fetch data
 async function getExperiences(): Promise<IExperience[]> {
   try {
     // Fetch from your backend's endpoint
-    const res = await fetch('http://localhost:3001/api/experiences', {
+    const res = await fetch(`${API_URL}/api/experiences`, {
       cache: 'no-store', // Always get fresh data
     });
 

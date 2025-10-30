@@ -2,10 +2,12 @@
 import ExperienceDetailsClient from '@/app/components/ExperienceDetailsClient';
 import { IExperienceDetails } from '@/app/types';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 // This is the data-fetching function
 async function getExperienceDetails(id: string): Promise<IExperienceDetails | null> {
   try {
-    const res = await fetch(`http://localhost:3001/api/experiences/${id}`, {
+    const res = await fetch(`${API_URL}/api/experiences/${id}`, {
       cache: 'no-store',
     });
     if (!res.ok) {
